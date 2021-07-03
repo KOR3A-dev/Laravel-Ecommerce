@@ -6,8 +6,13 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Order;
+use App\Models\Image;
 
-class User extends Authenticatable
+
+
+
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
@@ -40,11 +45,40 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'admin_since' => 'datetime',
+
     ];
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'customer_id');
+    }
 
+    public function payments()
+    {
+        return $this->hasManyThrough(Payment::class, Order::class, 'customer_id');
+    }
 
-    protected $dates = [
-        'admin_since',
-    ];
+    public function image()
+    {
+        return $this->morphOne(Image::class, 'imageable');
+    }
+
+    public function isAdmin()
+    {
+        return $this->admin_since != null
+            && $this->admin_since->lessThanOrEqualTo(now());
+    }
+
+    public function setPasswordAttribute($password)
+    {
+           $this->attributes['password'] = bcrypt($password);
+    }
+
+    public function getProfileImageAttribute()
+    {
+        return $this->image
+             ? "images/{$this->image->path}"
+             : 'https://www.gravatar.com/avatar/404?d=mp';
+    }
 }

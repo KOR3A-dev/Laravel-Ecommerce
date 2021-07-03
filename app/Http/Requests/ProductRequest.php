@@ -29,16 +29,18 @@ class ProductRequest extends FormRequest
          'price' => ['required', 'min:1'],
          'stock' => ['required', 'min:0'],
          'status' => ['required', 'in:available,unavaible'],
+         'images.*' => ['nullable','image'],
+
         ];
     }
 
     public function withValidator($validator)
     {
       $validator->after(function($validator){
-        
+
         if($this->status == 'available' && $this->stock == 0){
            $validator->error()->add('stock','If avaible must have stock ');
-        
+
            }
 
       });

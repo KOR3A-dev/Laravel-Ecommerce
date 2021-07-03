@@ -33,9 +33,20 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
+                       @if (optional(auth()->user())->isAdmin())
+                           <li class="nav-item">
+                                <a class="nav-link" href="{{ route('panel') }}">
+                                     Panel
+                                </a>
+                           </li>
+                       @endif
+
+
+
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('products.index') }}">
-                                Products
+                            <a class="nav-link" href="{{ route('carts.index') }}">
+                                @inject('cartService','App\Services\CartService')
+                                Cart ({{ $cartService->countProducts() }})
                             </a>
                         </li>
                     </ul>
@@ -58,10 +69,20 @@
                         @else
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
+                                    <img
+                                     src="{{ asset(Auth::user()->profile_image) }}"
+                                     alt="{{ Auth::user()->name }}"
+                                     class="rounded-circle" width="50" height="50">
+                                    <span class="caret"></span>
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    {{--Profile--}}
+                                    <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                        {{ __('Profile') }}
+                                    </a>
+
+
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
@@ -98,12 +119,12 @@
                      </ul>
               </div>
          @endif
-         
+
             @yield('content')
 
        </div>
-             
-  
+
+
     </main>
  </div>
 </body>
